@@ -44,7 +44,7 @@ let result=getGeoJson(data)
 ## Html use CDN   
 ```javascript
 
-<script src='https://unpkg.com/parser-gml@0.10.1/dist/parser-gml.js' ></script>
+<script src='https://unpkg.com/parser-gml/dist/parser-gml.js' ></script>
 <script>
     var result=parserGml.getGeoJson(data)
 </script>

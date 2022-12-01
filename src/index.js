@@ -11,12 +11,10 @@ function  getPoint(point,type){
         coordinates:coor
     }
 }
-//点
 function  getGeoJsonPoint(data){
     let key = Object.keys(data)[0];
     return key ==parseOption.gml+"pos" ?getPoint(data[key],' '):getPoint(data[key],',')
 }
-///线
 function getGeoJsonPolyline(data){
     let key = Object.keys(data)[0];
     let polyline=[];
@@ -37,7 +35,6 @@ function getGeoJsonPolyline(data){
         coordinates:polyline
     }
 }
-//面
 function  getGeoJsonPolygon(data){
     let key=Object.keys(data)[0]
     let polygon=[];

@@ -15,6 +15,11 @@
     "name": "pengz",
     "email": "1315447232@qq.com"
   },
+  "repository":{
+    "type": "git",
+    "url": "https://github.com/peng-97/parser-gml.git"
+  },
+
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
