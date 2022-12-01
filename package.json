@@ -1,0 +1,25 @@
+{
+  "name": "parser-gml",
+  "version": "0.10.1",
+  "description": "将gml转为geojson",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "rollup --bundleConfigAsCjs  -c  rollup.config.js",
+    "test": "node ./test"
+  },
+  "keywords": [
+    "gml",
+    "geojson"
+  ],
+  "author": {
+    "name": "pengz",
+    "email": "1315447232@qq.com"
+  },
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "@rollup/plugin-json": "^5.0.1",
+    "rollup": "^3.4.0",
+    "rollup-plugin-commonjs": "^10.1.0"
+  }
+}
