@@ -1,7 +1,7 @@
 {
   "name": "parser-gml",
-  "version": "0.10.1",
-  "description": "将gml转为geojson",
+  "version": "0.1.5",
+  "description": "将gml转为geojson,gml to geojson",
   "main": "./dist/index.js",
   "scripts": {
     "build": "rollup --bundleConfigAsCjs  -c  rollup.config.js",
@@ -9,17 +9,21 @@
   },
   "keywords": [
     "gml",
-    "geojson"
+    "geojson",
+    "gis"
   ],
   "author": {
     "name": "pengz",
     "email": "1315447232@qq.com"
   },
-  "repository":{
+  "repository": {
     "type": "git",
-    "url": "https://github.com/peng-97/parser-gml.git"
+    "url": "https://github.com/peng-97/parser-gml"
   },
-
+  "bugs": {
+    "url": "https://github.com/peng-97/parser-gml/issues"
+  },
+  "homepage": "https://github.com/peng-97/parser-gml#readme",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {

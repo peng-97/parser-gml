@@ -1,5 +1,4 @@
 const  parseOption={
-      gml:"gml",
       shape:["geometry","the_geom","geom","shape"]
 }
 function  getPoint(point,type){
@@ -13,12 +12,12 @@ function  getPoint(point,type){
 }
 function  getGeoJsonPoint(data){
     let key = Object.keys(data)[0];
-    return key ==parseOption.gml+"pos" ?getPoint(data[key],' '):getPoint(data[key],',')
+    return key =="pos" ?getPoint(data[key],' '):getPoint(data[key],',')
 }
 function getGeoJsonPolyline(data){
     let key = Object.keys(data)[0];
     let polyline=[];
-    if (key ==parseOption.gml+"posList") {
+    if (key =="posList") {
         let listcoor=data[key].split(' ');
         listcoor.forEach(function (co,index){
             if (index%2!=0){
@@ -26,8 +25,8 @@ function getGeoJsonPolyline(data){
             }
         })
     } else {
-        return data[key].split(' ').map(function (point) {
-            polyline =getPoint(point)
+         data[key].split(' ').map(function (point) {
+            polyline.push(getPoint(point,",").coordinates)
         });
     }
     return  {
@@ -40,10 +39,10 @@ function  getGeoJsonPolygon(data){
     let polygon=[];
     if (data[key] instanceof  Array) {
         data[key].forEach(function (lineArea) {
-            polygon.push(getGeoJsonPolyline(lineArea[Object.keys(lineArea)[0]],parseOption.gml).coordinates)
+            polygon.push(getGeoJsonPolyline(lineArea[Object.keys(lineArea)[0]]).coordinates)
         })
     }else {
-        polygon.push(getGeoJsonPolyline(data[key][Object.keys(data[key])[0]], parseOption.gml).coordinates)
+        polygon.push(getGeoJsonPolyline(data[key][Object.keys(data[key])[0]]).coordinates)
     }
     return {
         type:"Polygon",
@@ -57,19 +56,19 @@ function convertToJSON(xmlDoc) {
         let childNodes=getNodeChildName(node_list);
         for (var i = 0; i < node_list.length; i++) {
             var curr_node = node_list[i];
-            //忽略子节点中的换行和空格
-            if (curr_node.nodeType == 3) {
+            if (curr_node.nodeType == 3) {       //忽略子节点中的换行和空格
                 continue;
             }
             let value= curr_node.childNodes.length > 1 ? generate(curr_node.childNodes): (curr_node.childNodes[0]!=null?curr_node.childNodes[0].nodeValue.trim():"");
+                let key=curr_node.nodeName.substring(curr_node.nodeName.indexOf(":")+1)
                 if (childNodes[curr_node.nodeName]>1){
-                    if (obj[curr_node.nodeName]){
-                        obj[curr_node.nodeName].push(value)
+                    if (obj[key]){
+                        obj[key].push(value)
                     }else{
-                        obj[curr_node.nodeName]=[value]
+                        obj[key]=[value]
                     }
                 }else{
-                    obj[curr_node.nodeName]=value
+                    obj[key]=value
                 }
         }
         return obj;
@@ -115,13 +114,10 @@ function  getMutiGeometry(data){
 function getGeometry(data){
     let key=Object.keys(data)[0];
     switch (key.toLowerCase()){
-        case parseOption.gml+"point":
         case "point":
             return getGeoJsonPoint(data[Object.keys(data)[0]]);
-        case  parseOption.gml+"linestring":
-        case "linestring":
+        case  "linestring":
             return  getGeoJsonPolyline(data[Object.keys(data)[0]]);
-        case parseOption.gml+"polygon":
         case "polygon":
             return  getGeoJsonPolygon(data[Object.keys(data)[0]]);
         default:
@@ -136,10 +132,17 @@ function  parseFeature(feature){
     };
     let geometry=null;
     for (var pKey in feature) {
-        !parseOption.shape.find(function (geo){return  (pKey.toLowerCase()==geo || pKey.toLowerCase()==parseOption.gml+geo)})? obj.properties[pKey]=feature[pKey]: geometry=feature[pKey];
+        !parseOption.shape.find(function (geo){return  pKey.toLowerCase()==geo})? obj.properties[pKey]=feature[pKey]: geometry=feature[pKey];
     }
     if (geometry) {
         obj.geometry = getGeometry(geometry)
+    }else{
+        for (var pKey in obj.properties) {
+             if (obj.properties[pKey] instanceof  Object){
+                    obj.geometry=getGeometry({"shape":obj.properties[pKey]})
+                    delete  obj.properties[pKey]
+             }
+        }
     }
     return obj;
 }
@@ -158,7 +161,6 @@ function  parseMember(data){
 
  function getGeoJson(data,option){
     if (!data){ return  null }
-    parseOption.gml=((option && option.gml) ? option.gml :parseOption.gml).toLowerCase()+":"
     if(option && option.shape ){
         parseOption.shape.push(option.shape.toLowerCase())
     }
@@ -168,27 +170,34 @@ function  parseMember(data){
         let jsonData= convertToJSON(xml);
         let featurecollection = jsonData[Object.keys(jsonData)[0]];
         let key = Object.keys(featurecollection).find(function (type ) {
-            return type.toLowerCase().includes("featuremember")
+            return type.toLowerCase().includes("member")
         });
         let members = featurecollection[key];
-       if(key.toLowerCase().includes("featuremembers")){
-           if (members instanceof Array) {
-               members.forEach(function (member) {
-                   features=  features.concat(parseMember(member[Object.keys(member)[0]]))
-               })
-           } else if (members instanceof Object) {
-               features=features.concat(parseMember(members[Object.keys(members)[0]]))
-           }
-       } else{
-           if (members instanceof Array) {
-               members.forEach(function (member) {
-                   features.push(parseFeature(member[Object.keys(member)[0]]))
-               })
-           } else if (members instanceof Object) {
-               let member=members[Object.keys(members)[0]];
-               features.push(parseFeature( member[Object.keys(member)[0]]))
-           }
-       }
+       // if(key.toLowerCase().includes("members")){
+       //     if (members instanceof Array) {
+       //         members.forEach(function (member) {
+       //             features=  features.concat(parseMember(member[Object.keys(member)[0]]))
+       //         })
+       //     } else if (members instanceof Object) {
+       //         features=features.concat(parseMember(members[Object.keys(members)[0]]))
+       //     }
+       // } else{
+       //     if (members instanceof Array) {
+       //         members.forEach(function (member) {
+       //             features.push(parseFeature(member[Object.keys(member)[0]]))
+       //         })
+       //     } else if (members instanceof Object) {
+       //         let member=members[Object.keys(members)[0]];
+       //         features.push(parseFeature( member))
+       //     }
+       // }
+        if (members instanceof Array) {
+                    members.forEach(function (member) {
+                        features=  features.concat(parseMember(member[Object.keys(member)[0]]))
+                    })
+        } else if (members instanceof Object) {
+            features=features.concat(parseMember(members[Object.keys(members)[0]]))
+        }
         return {
             type: "FeatureCollection",
             features,
@@ -198,4 +207,4 @@ function  parseMember(data){
         return  null
     }
 }
-exports.getGeoJson=getGeoJson
+// exports.getGeoJson=getGeoJson
