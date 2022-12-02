@@ -1,6 +1,6 @@
 {
   "name": "parser-gml",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "将gml转为geojson,gml to geojson",
   "main": "./dist/index.js",
   "scripts": {

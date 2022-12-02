@@ -207,4 +207,4 @@ function  parseMember(data){
         return  null
     }
 }
-// exports.getGeoJson=getGeoJson
+exports.getGeoJson=getGeoJson
