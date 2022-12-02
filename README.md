@@ -25,10 +25,10 @@
 
 ```javascript
    /*
-   *   data:data,//gml数据,string,必须，否则解析结果为null
+   *   data:data,//gml data,string/xml,必须，否则解析结果为null
    *    option:{
              shape:"shape",空间数据字段,默认包含geometry,geom,the_geom,shape,空间字段是其不包含以上在这配置,忽略大小写       
-        } //配置参数，可选
+        } //配置参数，可选 
    * */
     
 ```
@@ -46,9 +46,13 @@ let result=getGeoJson(data)
 ```javascript
 
 <script src='https://unpkg.com/parser-gml/dist/parser-gml.js' ></script>
+
+<script src='https://unpkg.com/parser-gml/dist/parser-gml.min.js' ></script>
 <script>
     var result=parserGml.getGeoJson(data)
 </script>
 
 ```
+
+
 

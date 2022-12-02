@@ -1,8 +1,9 @@
 {
   "name": "parser-gml",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "将gml转为geojson,gml to geojson",
   "main": "./dist/index.js",
+  "types": "./src/index.ts",
   "scripts": {
     "build": "rollup --bundleConfigAsCjs  -c  rollup.config.js",
     "test": "node ./test"
@@ -29,6 +30,7 @@
   "devDependencies": {
     "@rollup/plugin-json": "^5.0.1",
     "rollup": "^3.4.0",
-    "rollup-plugin-commonjs": "^10.1.0"
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-terser": "^7.0.2"
   }
 }

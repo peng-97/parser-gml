@@ -3,13 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-   <script src="../src"></script>
+   <script src="../dist/parser-gml.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.0.0.min.js"></script>
 </head>
 <body>
    <script >
-           let data=""
-           let result=getGeoJson(data);
-          console.log(result)
+       //gml3
+     // $.ajax({
+     //       url:"https://svn.osgeo.org/geotools/trunk/modules/extension/xsd/xsd-gml3/src/test/resources/org/geotools/gml3/states.xml",
+     //       dataType:"text",//use text not xml,
+     //       type:"get",
+     //       success:function (data){
+     //         let result=parserGml.getGeoJson(data);
+     //         console.log(result)
+     //     }
+     // })
+
+
+     //need vpn internet
+     // $.ajax({
+     //      url:"http://19.200.42.50/NServiceAdapter/DWMS/SDZT_ZRZY_DL_FS2K_DWMS/422de9bbfd926493b5eaf6546587cb9e",
+     //      type:"get",
+     //      dataType:"text",
+     //     data:{
+     //         service:"wfs",
+     //         VERSION:"1.0.0",
+     //         REQUEST:"GetFeature",
+     //         TYPENAME:"sdzt_zrzy_dl_fs2k",
+     //     },
+     //     success:function (data){
+     //                 let result=parserGml.getGeoJson(data);
+     //                 console.log(result)
+     //             }
+     // })
+       //need vpn internet
+     // $.ajax({
+     //      url:"http://19.128.104.232:12345/ServiceAccess/WFS/专项规划蓝线_WFS_CGCS2000",
+     //      type:"get",
+     //      dataType:"text",
+     //     data:{
+     //         tokens:"4f78e6978a9a921375ed4c74750795f2",
+     //         request:"getfeature",
+     //         version:"1.0.0",
+     //         typename:"FS_KZXLANX_CGCS2000:城市蓝线",
+     //         service:"wfs",
+     //     },
+     //     success:function (data){
+     //                 let result=parserGml.getGeoJson(data);
+     //                 console.log(result)
+     //             }
+     // })
+     //  guanghou tianditu
+
+     // $.ajax({
+     //          url:"https://guangdong.tianditu.gov.cn/geostar/HSDT/wfs",
+     //          type:"post",
+     //          dataType:"text",
+     //         data:'<wfs:GetFeature xmlns:wfs="http://www.opengis.net/wfs" service="WFS" version="1.0.0" maxFeatures="999999999" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd"><wfs:Query typeName="HSDT" userecent="true"><ogc:SortBy xmlns:ogc="http://www.opengis.net/ogc"><ogc:SortProperty><ogc:PropertyName>OID</ogc:PropertyName><ogc:SortOrder>ASC</ogc:SortOrder></ogc:SortProperty></ogc:SortBy></wfs:Query></wfs:GetFeature>',
+     //         headers:{
+     //                contentType:'xml'
+     //         },
+     //         success:function (data){
+     //                     let result=parserGml.getGeoJson(data);
+     //                     console.log(result)
+     //                 }
+     // })
+       $.ajax({
+                url:"https://guangdong.tianditu.gov.cn/geostar/HSDT/wfs",
+                type:"post",
+                dataType:"xml",
+               data:'<wfs:GetFeature xmlns:wfs="http://www.opengis.net/wfs" service="WFS" version="1.0.0" maxFeatures="999999999" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.opengis.net/wfs http://schemas.opengis.net/wfs/1.0.0/WFS-transaction.xsd"><wfs:Query typeName="HSDT" userecent="true"><ogc:SortBy xmlns:ogc="http://www.opengis.net/ogc"><ogc:SortProperty><ogc:PropertyName>OID</ogc:PropertyName><ogc:SortOrder>ASC</ogc:SortOrder></ogc:SortProperty></ogc:SortBy></wfs:Query></wfs:GetFeature>',
+               headers:{
+                      contentType:'xml'
+               },
+               success:function (data){
+                           let result=parserGml.getGeoJson(data);
+                           console.log(result)
+                       }
+       })
    </script>
 </body>
 </html>

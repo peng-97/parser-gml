@@ -1,7 +1,5 @@
-const  parseOption={
-      shape:["geometry","the_geom","geom","shape"]
-}
-function  getPoint(point,type){
+const parseOption={shape:["geometry","the_geom","geom","shape"]}
+function getPoint(point,type){
     let coor=point.split(type).map(function (co){
         return parseFloat(co)
     })
@@ -10,7 +8,7 @@ function  getPoint(point,type){
         coordinates:coor
     }
 }
-function  getGeoJsonPoint(data){
+function getGeoJsonPoint(data){
     let key = Object.keys(data)[0];
     return key =="pos" ?getPoint(data[key],' '):getPoint(data[key],',')
 }
@@ -34,7 +32,7 @@ function getGeoJsonPolyline(data){
         coordinates:polyline
     }
 }
-function  getGeoJsonPolygon(data){
+function getGeoJsonPolygon(data){
     let key=Object.keys(data)[0]
     let polygon=[];
     if (data[key] instanceof  Array) {
@@ -50,17 +48,24 @@ function  getGeoJsonPolygon(data){
     };
 }
 function convertToJSON(xmlDoc) {
-    var nodeList = xmlDoc.childNodes;//根节点
+   // xmlDoc =new DOMParser().parseFromString(xmlDoc, 'text/xml');
+    var nodeList = xmlDoc.childNodes;//根节点  root node
     function generate(node_list) {
         let obj={};
         let childNodes=getNodeChildName(node_list);
         for (var i = 0; i < node_list.length; i++) {
             var curr_node = node_list[i];
-            if (curr_node.nodeType == 3) {       //忽略子节点中的换行和空格
+            if (curr_node.nodeType == 3) { //忽略子节点中的换行和空格   ignore  '\n' and ' ' of  children node
                 continue;
             }
-            let value= curr_node.childNodes.length > 1 ? generate(curr_node.childNodes): (curr_node.childNodes[0]!=null?curr_node.childNodes[0].nodeValue.trim():"");
-                let key=curr_node.nodeName.substring(curr_node.nodeName.indexOf(":")+1)
+            let value="";  // let value= curr_node.childNodes.length > 1 ? generate(curr_node.childNodes): (curr_node.childNodes[0]!=null?curr_node.childNodes[0].nodeValue.trim():"");
+            if (curr_node.childNodes.length>1){
+                   value= generate(curr_node.childNodes)
+            }
+            else if (curr_node.childNodes.length==1){
+                   value= curr_node.childNodes[0].nodeValue ?   curr_node.childNodes[0].nodeValue.trim(): generate(curr_node.childNodes)
+            }
+                 let key=curr_node.nodeName.substring(curr_node.nodeName.indexOf(":")+1)
                 if (childNodes[curr_node.nodeName]>1){
                     if (obj[key]){
                         obj[key].push(value)
@@ -73,7 +78,7 @@ function convertToJSON(xmlDoc) {
         }
         return obj;
     }
-    //将父节点所有子节点名字
+    //find children node name from father node
     function getNodeChildName( node_list){
         let obj={};
         for (var i = 0; i < node_list.length; i++) {
@@ -88,8 +93,7 @@ function convertToJSON(xmlDoc) {
     }
     return generate(nodeList)
 }
-//复杂图形
-function  getMutiGeometry(data){
+function getMutiGeometry(data){
     let key=Object.keys(data)[0]
     if (data[key] instanceof Array){
         let listGeometry= data[key].map(function (po){
@@ -124,7 +128,7 @@ function getGeometry(data){
             return  getMutiGeometry(data[Object.keys(data)[0]]);
     }
 }
-function  parseFeature(feature){
+function parseFeature(feature){
     var obj= {
         "type": "Feature",
         "geometry": {},
@@ -137,8 +141,9 @@ function  parseFeature(feature){
     if (geometry) {
         obj.geometry = getGeometry(geometry)
     }else{
+        //no shape fields,select fields from data and construct object
         for (var pKey in obj.properties) {
-             if (obj.properties[pKey] instanceof  Object){
+             if (obj.properties[pKey] instanceof  Object || obj.properties[pKey] instanceof Array){
                     obj.geometry=getGeometry({"shape":obj.properties[pKey]})
                     delete  obj.properties[pKey]
              }
@@ -146,8 +151,7 @@ function  parseFeature(feature){
     }
     return obj;
 }
-
-function  parseMember(data){
+function parseMember(data){
       let features=[];
       if (data instanceof  Array){
             data.forEach(function (feature){
@@ -158,43 +162,44 @@ function  parseMember(data){
       }
       return features;
 }
-
- function getGeoJson(data,option){
+function getGeoJson(data,option){
     if (!data){ return  null }
     if(option && option.shape ){
         parseOption.shape.push(option.shape.toLowerCase())
     }
     let features=[];
     try {
-        let xml =new DOMParser().parseFromString(data, 'text/xml');
-        let jsonData= convertToJSON(xml);
+        if (Object.prototype.toString.call(data)!="[object XMLDocument]"){
+            data =new DOMParser().parseFromString(data, 'text/xml');
+        }
+        let jsonData=convertToJSON(data)
         let featurecollection = jsonData[Object.keys(jsonData)[0]];
         let key = Object.keys(featurecollection).find(function (type ) {
             return type.toLowerCase().includes("member")
         });
         let members = featurecollection[key];
-       // if(key.toLowerCase().includes("members")){
-       //     if (members instanceof Array) {
-       //         members.forEach(function (member) {
-       //             features=  features.concat(parseMember(member[Object.keys(member)[0]]))
-       //         })
-       //     } else if (members instanceof Object) {
-       //         features=features.concat(parseMember(members[Object.keys(members)[0]]))
-       //     }
-       // } else{
-       //     if (members instanceof Array) {
-       //         members.forEach(function (member) {
-       //             features.push(parseFeature(member[Object.keys(member)[0]]))
-       //         })
-       //     } else if (members instanceof Object) {
-       //         let member=members[Object.keys(members)[0]];
-       //         features.push(parseFeature( member))
-       //     }
-       // }
+        // if(key.toLowerCase().includes("members")){
+        //     if (members instanceof Array) {
+        //         members.forEach(function (member) {
+        //             features=  features.concat(parseMember(member[Object.keys(member)[0]]))
+        //         })
+        //     } else if (members instanceof Object) {
+        //         features=features.concat(parseMember(members[Object.keys(members)[0]]))
+        //     }
+        // } else{
+        //     if (members instanceof Array) {
+        //         members.forEach(function (member) {
+        //             features.push(parseFeature(member[Object.keys(member)[0]]))
+        //         })
+        //     } else if (members instanceof Object) {
+        //         let member=members[Object.keys(members)[0]];
+        //         features.push(parseFeature( member))
+        //     }
+        // }
         if (members instanceof Array) {
-                    members.forEach(function (member) {
-                        features=  features.concat(parseMember(member[Object.keys(member)[0]]))
-                    })
+            members.forEach(function (member) {
+                features=  features.concat(parseMember(member[Object.keys(member)[0]]))
+            })
         } else if (members instanceof Object) {
             features=features.concat(parseMember(members[Object.keys(members)[0]]))
         }
